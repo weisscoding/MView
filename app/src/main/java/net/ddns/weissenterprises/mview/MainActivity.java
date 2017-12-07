@@ -35,16 +35,16 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        AddEntryDialogFragment.AddEntryDialogFragmentListener
-{
+        AddEntryDialogFragment.AddEntryDialogFragmentListener {
 
     private static final String DB_LOG = "2017 9 22 565.0€2017 9 23 9.0€2017 9 23 17.0€2017 9 23 6.0€2017 9 24 -20.0€2017 9 24 7.25€2017 9 24 15.0€2017 9 24 3.91€2017 9 24 -7.25€2017 9 25 7.5€2017 9 26 11.25€2017 9 26 3.99€2017 9 28 6.21€2017 9 28 10.0€2017 9 30 7.0€2017 9 30 55.0€2017 10 2 7.0€2017 10 2 4.0€2017 10 3 9.0€2017 10 6 2.0€2017 10 6 6.0€2017 10 6 4.0€2017 10 6 7.5€2017 10 6 10.0€2017 10 6 7.5€2017 10 7 15.0€2017 10 7 4.0€2017 10 7 19.0€2017 10 10 16.0€2017 10 10 6.0€2017 10 10 10.0€2017 10 10 40.0€2017 10 11 8.31€2017 10 11 2.25€2017 10 12 6.3€2017 10 13 5.39€2017 10 13 12.0€2017 10 14 55.0€2017 10 14 20.0€2017 10 14 13.4€2017 10 14 15.5€2017 10 15 7.78€2017 10 15 3.0€2017 10 15 2.0€2017 10 16 7.5€2017 10 16 6.5€2017 10 16 2.66€2017 10 17 3.0€2017 10 17 2.5€2017 10 17 7.5€2017 10 17 2.0€2017 10 17 5.0€2017 10 18 7.5€2017 10 18 7.8€2017 10 18 140.0€2017 10 20 13.0€2017 10 20 4.71€2017 10 20 8.0€2017 10 20 3.0€2017 10 20 3.0€2017 10 20 5.28€2017 10 22 2.5€2017 10 22 9.0€2017 10 22 6.5€2017 10 23 5.76€2017 10 23 20.0€2017 10 24 16.0€2017 10 25 7.0";
 
-    static public float calculateMPD(float moneySpent, float moneyPerMonth, String dateS){
+    static public float calculateMPD(float moneySpent, float moneyPerMonth, String dateS) {
 
         int daysLeft = getDaysLeftInMonth(dateS);
 
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity
 
         int daysInMonth = getDaysInMonth(dateS);
 
-        int cd = Integer.parseInt(dateS.substring(3,5));
+        int cd = Integer.parseInt(dateS.substring(3, 5));
 
         d = daysInMonth - cd + 1;
 
@@ -72,17 +72,17 @@ public class MainActivity extends AppCompatActivity
 
         int d = 1;
 
-        int m = Integer.parseInt(dateS.substring(0,2));
-        int y = Integer.parseInt(dateS.substring(6,10));
+        int m = Integer.parseInt(dateS.substring(0, 2));
+        int y = Integer.parseInt(dateS.substring(6, 10));
 
-        switch (m){
+        switch (m) {
             case 1:
                 d = 31;
                 break;
             case 2:
-                if ((y - 2004) % 4 == 0){
+                if ((y - 2004) % 4 == 0) {
                     d = 29;
-                } else{
+                } else {
                     d = 28;
                 }
                 break;
@@ -123,33 +123,32 @@ public class MainActivity extends AppCompatActivity
         return d;
     }
 
-    private void updateSharedPreferences(String dateS, Float val, Double money_per_month, SharedPreferences sharedPreferences){
-        String lastEntry = sharedPreferences.getString(getString(R.string.saved_last_entry_key),getString(R.string.ZERO_DATE));
+    private void updateSharedPreferences(String dateS, Float val, Double money_per_month, SharedPreferences sharedPreferences) {
+        String lastEntry = sharedPreferences.getString(getString(R.string.saved_last_entry_key), getString(R.string.ZERO_DATE));
         boolean is_earlier = isEarlier(lastEntry, dateS);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        if (is_earlier){
+        if (is_earlier) {
             editor.putString(getString(R.string.saved_last_entry_key), dateS);
         }
 
-        float moneySpent = sharedPreferences.getFloat(getString(R.string.saved_money_spent_key),0);
+        float moneySpent = sharedPreferences.getFloat(getString(R.string.saved_money_spent_key), 0);
         //float moneyPerMonth = sharedPreferences.getFloat(getString(R.string.saved_money_per_month_key),0);
-        float moneySpentToday = sharedPreferences.getFloat(getString(R.string.saved_money_spent_today_key),0);
+        float moneySpentToday = sharedPreferences.getFloat(getString(R.string.saved_money_spent_today_key), 0);
 
 
-        if (money_per_month != null){
-            editor.putFloat(getString(R.string.saved_money_per_month_key),money_per_month.floatValue());
-        } else if(val != null){
-            editor.putFloat(getString(R.string.saved_money_spent_key),moneySpent + val.floatValue());
+        if (money_per_month != null) {
+            editor.putFloat(getString(R.string.saved_money_per_month_key), money_per_month.floatValue());
+        } else if (val != null) {
+            editor.putFloat(getString(R.string.saved_money_spent_key), moneySpent + val.floatValue());
             float newMoneySpentToday = moneySpentToday + val.floatValue();
             float mpd = sharedPreferences.getFloat(getString(R.string.saved_mpd_today_key), 20);
 
             editor.putFloat(getString(R.string.saved_money_spent_today_key), newMoneySpentToday);
 
 
+            TextView MTView = (TextView) findViewById(R.id.MTView);
 
-            TextView MTView = (TextView)findViewById(R.id.MTView);
-
-            if (mpd <= newMoneySpentToday){
+            if (mpd <= newMoneySpentToday) {
                 MTView.setTextColor(Color.RED);
             }
 
@@ -164,15 +163,15 @@ public class MainActivity extends AppCompatActivity
 
         boolean x = false;
 
-        int date_s = 10000 * Integer.parseInt(dateS.substring(6,10))
-                + 100 * Integer.parseInt(dateS.substring(0,2))
-                + Integer.parseInt(dateS.substring(3,5));
+        int date_s = 10000 * Integer.parseInt(dateS.substring(6, 10))
+                + 100 * Integer.parseInt(dateS.substring(0, 2))
+                + Integer.parseInt(dateS.substring(3, 5));
 
-        int last_entry = 10000 * Integer.parseInt(lastEntry.substring(6,10))
-                + 100 * Integer.parseInt(lastEntry.substring(0,2))
-                + Integer.parseInt(lastEntry.substring(3,5));
+        int last_entry = 10000 * Integer.parseInt(lastEntry.substring(6, 10))
+                + 100 * Integer.parseInt(lastEntry.substring(0, 2))
+                + Integer.parseInt(lastEntry.substring(3, 5));
 
-        if (last_entry < date_s){
+        if (last_entry < date_s) {
             x = true;
         }
         /*
@@ -196,25 +195,25 @@ public class MainActivity extends AppCompatActivity
         boolean ret = false;
 
 
-        if(!val.equals("")){
+        if (!val.equals("")) {
             ListView listView = (ListView) findViewById(R.id.ScrollList);
             MainActivity.CashFlowAdapter adapter = (MainActivity.CashFlowAdapter) listView.getAdapter();
 
             Date date = new Date();
 
-            float valF = Float.parseFloat(val)*factor;
-            valF = Math.round(valF*100f)/100f;
+            float valF = Float.parseFloat(val) * factor;
+            valF = Math.round(valF * 100f) / 100f;
 
             int category = 0;
 
             CFData cfData = new CFData(valF, date.getTime(), category);
 
-            adapter.insert( cfData, 0);
+            adapter.insert(cfData, 0);
 
             Context context = getBaseContext();
 
             SharedPreferences sharedPreferences = context.getSharedPreferences(
-                    getString(R.string.preference_file_key),Context.MODE_PRIVATE
+                    getString(R.string.preference_file_key), Context.MODE_PRIVATE
             );
 
             updateSharedPreferences(cfData.getDateS(), valF, null, sharedPreferences);
@@ -226,27 +225,27 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-  /*  @Override
-    public void onPositive(){
+    /*  @Override
+      public void onPositive(){
 
-        ListView listView = (ListView) findViewById(R.id.ScrollList);
-        MainActivity.CashFlowAdapter adapter = (MainActivity.CashFlowAdapter) listView.getAdapter();
+          ListView listView = (ListView) findViewById(R.id.ScrollList);
+          MainActivity.CashFlowAdapter adapter = (MainActivity.CashFlowAdapter) listView.getAdapter();
 
-        double val = Double.parseDouble((String)((TextView)findViewById(R.id.dialogEntryVal)).getText());
+          double val = Double.parseDouble((String)((TextView)findViewById(R.id.dialogEntryVal)).getText());
 
-        adapter.insert(new CFData(val, (new SimpleDateFormat("MM/DD/YYYY")).format(new Date())), 0);
-        adapter.notifyDataSetChanged();
-        new SaveCashFlowEntry().execute(new DCCFA(this, new Date(), adapter));
-    }
+          adapter.insert(new CFData(val, (new SimpleDateFormat("MM/DD/YYYY")).format(new Date())), 0);
+          adapter.notifyDataSetChanged();
+          new SaveCashFlowEntry().execute(new DCCFA(this, new Date(), adapter));
+      }
 
-    @Override
-    public void onNegative(){
+      @Override
+      public void onNegative(){
 
-    }
+      }
 
-*/
-    public static class SaveCashFlowEntry extends AsyncTask<DCCFA,Void, Void>{
-        protected Void doInBackground(DCCFA... dccfa){
+  */
+    public static class SaveCashFlowEntry extends AsyncTask<DCCFA, Void, Void> {
+        protected Void doInBackground(DCCFA... dccfa) {
             Context context = dccfa[0].context;
 
             CashFlowAdapter cfa = dccfa[0].cfa;
@@ -255,9 +254,9 @@ public class MainActivity extends AppCompatActivity
             SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
             CFData cfData = (CFData) cfa.getItem(0);
-            int month = Integer.parseInt(cfData.getDateS().substring(0,2));
-            int day = Integer.parseInt(cfData.getDateS().substring(3,5));
-            int year = Integer.parseInt(cfData.getDateS().substring(6,10));
+            int month = Integer.parseInt(cfData.getDateS().substring(0, 2));
+            int day = Integer.parseInt(cfData.getDateS().substring(3, 5));
+            int year = Integer.parseInt(cfData.getDateS().substring(6, 10));
             long timestamp = cfData.getCurrentTimeMillis();
 
             float val = cfData.getVal();
@@ -266,7 +265,7 @@ public class MainActivity extends AppCompatActivity
 
             ContentValues values = new ContentValues();
 
-            values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_MONTH,Integer.toString(month));
+            values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_MONTH, Integer.toString(month));
             values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_DAY, Integer.toString(day));
             values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_YEAR, Integer.toString(year));
             values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_VAL, Float.toString(val));
@@ -280,9 +279,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private class LoadCashFlowEntries extends AsyncTask<DCCFA, Void, Cursor>{
+    private class LoadCashFlowEntries extends AsyncTask<DCCFA, Void, Cursor> {
 
-        protected Cursor doInBackground(DCCFA... dccfa){
+        protected Cursor doInBackground(DCCFA... dccfa) {
             Context context = dccfa[0].context;
 
             DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -303,7 +302,7 @@ public class MainActivity extends AppCompatActivity
 
             String selection = FeedReaderContract.FeedEntry.COLUMN_NAME_MONTH + " = ?"
                     + " AND " + FeedReaderContract.FeedEntry.COLUMN_NAME_YEAR + " = ?";
-            String[] selectionArgs = {dateS.substring(0,2), dateS.substring(6,10)};
+            String[] selectionArgs = {dateS.substring(0, 2), dateS.substring(6, 10)};
 
             String sortOrder = FeedReaderContract.FeedEntry.COLUMN_NAME_TIMESTAMP + " DESC";
 
@@ -319,7 +318,7 @@ public class MainActivity extends AppCompatActivity
             return cursor;
         }
 
-        protected void onPostExecute(Cursor cursor){
+        protected void onPostExecute(Cursor cursor) {
             ListView listView = (ListView) findViewById(R.id.ScrollList);
             ArrayAdapter adapter = (ArrayAdapter) listView.getAdapter();
 
@@ -330,7 +329,7 @@ public class MainActivity extends AppCompatActivity
 
             //int c = 0;
 
-            while(cursor.moveToNext()){
+            while (cursor.moveToNext()) {
 
                 long dateMillis = cursor.getLong(
                         cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_TIMESTAMP)
@@ -339,7 +338,7 @@ public class MainActivity extends AppCompatActivity
                 float val = cursor.getFloat(
                         cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_VAL)
                 );
-                val = Math.round(val*100f)/100f;
+                val = Math.round(val * 100f) / 100f;
 
                 int category = cursor.getInt(
                         cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_CATEGORY)
@@ -368,7 +367,7 @@ public class MainActivity extends AppCompatActivity
 
         }
 
-        protected void onProgressUpdate(Integer progress){
+        protected void onProgressUpdate(Integer progress) {
         }
 
     }
@@ -386,7 +385,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
 
                 DialogFragment dialog = new AddEntryDialogFragment();
-                dialog.show(getSupportFragmentManager(),"NoticeDialogFragment");
+                dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
 
                 //AddEntryDialogFragment addEntryDialogFragment = new AddEntryDialogFragment();
                 //addEntryDialogFragment.show(getSupportFragmentManager(), "entry_alert");
@@ -405,7 +404,7 @@ public class MainActivity extends AppCompatActivity
         //updating shared preferences, getting mpd, resetting
 
         SharedPreferences sharedPreferences = this.getSharedPreferences(
-                getString(R.string.preference_file_key),Context.MODE_PRIVATE
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE
         );
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -413,60 +412,77 @@ public class MainActivity extends AppCompatActivity
         String lastEntry = sharedPreferences.getString(getString(R.string.saved_last_entry_key), "00/00/0000");
         String dateS = (new SimpleDateFormat("MM/dd/YYYY")).format(new Date());
 
-        boolean is_earlier =  isEarlier(lastEntry, dateS);
+        boolean is_earlier = isEarlier(lastEntry, dateS);
 
         float mpd = 0;
 
-        if (is_earlier){
-            float moneySpent = sharedPreferences.getFloat(getString(R.string.saved_money_spent_key),0);
-            float moneyPerMonth = sharedPreferences.getFloat(getString(R.string.saved_money_per_month_key),600);
+        if (is_earlier) {
 
-            if((Integer.parseInt(lastEntry.substring(6,10)) * 100 + Integer.parseInt(lastEntry.substring(0,2))) < (Integer.parseInt(dateS.substring(6,10)) * 100 + Integer.parseInt(dateS.substring(0,2)))){
+            /*
+            float moneySpent = sharedPreferences.getFloat(getString(R.string.saved_money_spent_key), 0);
+            float moneyPerMonth = sharedPreferences.getFloat(getString(R.string.saved_money_per_month_key), 600);
+            if ((Integer.parseInt(lastEntry.substring(6, 10)) * 100 + Integer.parseInt(lastEntry.substring(0, 2))) < (Integer.parseInt(dateS.substring(6, 10)) * 100 + Integer.parseInt(dateS.substring(0, 2)))) {
                 moneySpent = 0;
                 editor.putFloat(getString(R.string.saved_money_spent_key), 0);
             }
 
-            mpd = calculateMPD(moneySpent, moneyPerMonth, dateS);
+            //mpd = calculateMPD(moneySpent, moneyPerMonth, dateS);
 
-            mpd = Math.round(mpd*100.0F)/100.0F;
+            //mpd = Math.round(mpd * 100.0F) / 100.0F;
 
-            editor.putFloat(getString(R.string.saved_mpd_today_key), mpd);
-            editor.putString(getString(R.string.saved_last_entry_key),dateS);
+            // editor.putFloat(getString(R.string.saved_mpd_today_key), mpd);
+
+            */
+
+            float moneyPerMonth = sharedPreferences.getFloat(getString(R.string.saved_money_per_month_key), 600);
+            float moneyPerDay = moneyPerMonth / getDaysInMonth(dateS);
+            float moneySpentYesterday = sharedPreferences.getFloat(getString(R.string.saved_money_spent_today_key), 0);
+
+            float savings = sharedPreferences.getFloat(getString(R.string.saved_savings_key), 0);
+            savings += (moneyPerDay - moneySpentYesterday);
+
+            editor.putFloat(getString(R.string.saved_mpd_today_key), moneyPerDay);
+            editor.putFloat(getString(R.string.saved_savings_key), savings);
+            editor.putString(getString(R.string.saved_last_entry_key), dateS);
             editor.putFloat(getString(R.string.saved_money_spent_today_key), 0);
 
             editor.commit();
 
-        }else{
-            mpd = sharedPreferences.getFloat(getString(R.string.saved_mpd_today_key), 20);
+        } else {
+            //mpd = sharedPreferences.getFloat(getString(R.string.saved_mpd_today_key), 20);
 
         }
 
-
+        float moneyPerMonth = sharedPreferences.getFloat(getString(R.string.saved_money_per_month_key), 600);
+        mpd = moneyPerMonth / getDaysInMonth(dateS);
 
         TextView textViewMpd = (TextView) findViewById(R.id.MPDView);
-        textViewMpd.setText(" / " + Float.toString(mpd));
+        textViewMpd.setText(" / " + String.format("%.2f",mpd));
 
-        float mst = sharedPreferences.getFloat(getString(R.string.saved_money_spent_today_key),0);
-        mst = Math.round(mst*100F)/100F;
+        float savings = sharedPreferences.getFloat(getString(R.string.saved_savings_key), 0);
+
+        TextView savingsTextView = (TextView)findViewById(R.id.textViewSavings);
+        savingsTextView.setText(String.format(Locale.getDefault(),"%.2f",savings));
+
+        float mst = sharedPreferences.getFloat(getString(R.string.saved_money_spent_today_key), 0);
 
         TextView dateView = (TextView) findViewById(R.id.dateView);
         dateView.setText(getDateViewString());
 
         TextView textViewMT = (TextView) findViewById(R.id.MTView);
-        textViewMT.setText(Float.toString(mst));
-        if (mst >= mpd){
+        textViewMT.setText(String.format("%.2f",mst));
+        if (mst >= mpd) {
             textViewMT.setTextColor(Color.RED);
         }
 
+
         TextView textViewStatus = (TextView) findViewById(R.id.textViewStatus);
 
-        float moneySpent = sharedPreferences.getFloat(getString(R.string.saved_money_spent_key),0);
-        moneySpent = Math.round(moneySpent*100F)/100F;
-        float moneyPerMonth = sharedPreferences.getFloat(getString(R.string.saved_money_per_month_key),600);
-        String textViewStatusString = moneySpent + " / " + moneyPerMonth;
+        float moneySpent = sharedPreferences.getFloat(getString(R.string.saved_money_spent_key), 0);
+
+        String textViewStatusString = String.format("%.2f",moneySpent) + " / " + String.format("%.2f",moneyPerMonth);
 
         textViewStatus.setText(textViewStatusString);
-
 
 
         ArrayList<CFData> arrayOfCFData = new ArrayList<CFData>();
@@ -475,7 +491,7 @@ public class MainActivity extends AppCompatActivity
         listView.setAdapter(adapter);
 
         Date date = new Date();
-        new LoadCashFlowEntries().execute(new DCCFA(this, date,null));
+        new LoadCashFlowEntries().execute(new DCCFA(this, date, null));
 
 
         //
@@ -551,7 +567,7 @@ public class MainActivity extends AppCompatActivity
 
         String log_message = "";
 
-        while(cursor.moveToNext()){
+        while (cursor.moveToNext()) {
             int month = cursor.getInt(
                     cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.COLUMN_NAME_MONTH)
             );
@@ -580,7 +596,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private String getDateViewString( ) {
+    private String getDateViewString() {
 
         String dateString;
 
@@ -609,7 +625,7 @@ public class MainActivity extends AppCompatActivity
 
     private String completeMonth(String m) {
 
-        switch (m){
+        switch (m) {
             case "1":
                 m = getString(R.string.january);
                 break;
@@ -662,7 +678,7 @@ public class MainActivity extends AppCompatActivity
             d = d.substring(1, d.length());
 
 
-        switch (d){
+        switch (d) {
             case "1":
                 d = "1st";
                 break;
@@ -693,26 +709,26 @@ public class MainActivity extends AppCompatActivity
 
     public class CashFlowAdapter extends ArrayAdapter<CFData> {
 
-        public CashFlowAdapter(Context context, List<CFData> objects){
+        public CashFlowAdapter(Context context, List<CFData> objects) {
             super(context, 0, objects);
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent){
+        public View getView(int position, View convertView, ViewGroup parent) {
             CFData cfData = getItem(position);
 
-            if(convertView == null){
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item,parent,false);
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
             }
 
             TextView date = (TextView) convertView.findViewById(R.id.date_val);
             TextView m_val = (TextView) convertView.findViewById(R.id.m_val);
 
             date.setText(cfData.getDateS());
-            if (cfData.getVal() > 0){
-                m_val.setText("+" + Float.toString(cfData.getVal()) + " " + getString(R.string.currency));
-            }else{
-                m_val.setText(Float.toString(cfData.getVal()) + " " + getString(R.string.currency));
+            if (cfData.getVal() > 0) {
+                m_val.setText("+" + String.format("%.2f",cfData.getVal()) + " " + getString(R.string.currency));
+            } else {
+                m_val.setText(String.format("%.2f",cfData.getVal()) + " " + getString(R.string.currency));
             }
 
             return convertView;
@@ -720,7 +736,6 @@ public class MainActivity extends AppCompatActivity
 
 
     }
-
 
 
     @Override
@@ -776,7 +791,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_send) {
 
-        } else if (id == R.id.nav_stats){
+        } else if (id == R.id.nav_stats) {
             Intent intent = new Intent(this, StatisticsActivity.class);
             startActivity(intent);
         }

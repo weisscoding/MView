@@ -159,5 +159,36 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
+
+
+        EditText savings = (EditText) findViewById(R.id.editTextSavings);
+
+        float Savings = sp.getFloat(getString(R.string.saved_savings_key), 0);
+
+        savings.setText(Float.toString(Savings));
+
+        savings.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+                SharedPreferences sp = getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+
+                SharedPreferences.Editor editor = sp.edit();
+
+                EditText editText = (EditText) findViewById(R.id.editTextSavings);
+
+                String vText = editText.getText().toString();
+
+                float new_savings = Float.parseFloat(vText);
+
+                editor.putFloat(getString(R.string.saved_savings_key), new_savings);
+
+                editor.apply();
+
+                return false;
+            }
+        });
+
+
     }
 }

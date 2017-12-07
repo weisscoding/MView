@@ -108,4 +108,6 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="enter_date">Date</string>
+    <string name="savings">Savings</string>
+    <string name="saved_savings_key" translatable="false">SAVINGS</string>
 </resources>
