@@ -34,6 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity
         AddEntryDialogFragment.AddEntryDialogFragmentListener {
 
     private static final String DB_LOG = "2017 9 22 565.0€2017 9 23 9.0€2017 9 23 17.0€2017 9 23 6.0€2017 9 24 -20.0€2017 9 24 7.25€2017 9 24 15.0€2017 9 24 3.91€2017 9 24 -7.25€2017 9 25 7.5€2017 9 26 11.25€2017 9 26 3.99€2017 9 28 6.21€2017 9 28 10.0€2017 9 30 7.0€2017 9 30 55.0€2017 10 2 7.0€2017 10 2 4.0€2017 10 3 9.0€2017 10 6 2.0€2017 10 6 6.0€2017 10 6 4.0€2017 10 6 7.5€2017 10 6 10.0€2017 10 6 7.5€2017 10 7 15.0€2017 10 7 4.0€2017 10 7 19.0€2017 10 10 16.0€2017 10 10 6.0€2017 10 10 10.0€2017 10 10 40.0€2017 10 11 8.31€2017 10 11 2.25€2017 10 12 6.3€2017 10 13 5.39€2017 10 13 12.0€2017 10 14 55.0€2017 10 14 20.0€2017 10 14 13.4€2017 10 14 15.5€2017 10 15 7.78€2017 10 15 3.0€2017 10 15 2.0€2017 10 16 7.5€2017 10 16 6.5€2017 10 16 2.66€2017 10 17 3.0€2017 10 17 2.5€2017 10 17 7.5€2017 10 17 2.0€2017 10 17 5.0€2017 10 18 7.5€2017 10 18 7.8€2017 10 18 140.0€2017 10 20 13.0€2017 10 20 4.71€2017 10 20 8.0€2017 10 20 3.0€2017 10 20 3.0€2017 10 20 5.28€2017 10 22 2.5€2017 10 22 9.0€2017 10 22 6.5€2017 10 23 5.76€2017 10 23 20.0€2017 10 24 16.0€2017 10 25 7.0";
+    private enum EARLIER {MONTH, DAY};
+
 
     static public float calculateMPD(float moneySpent, float moneyPerMonth, String dateS) {
 
@@ -125,7 +128,7 @@ public class MainActivity extends AppCompatActivity
 
     private void updateSharedPreferences(String dateS, Float val, Double money_per_month, SharedPreferences sharedPreferences) {
         String lastEntry = sharedPreferences.getString(getString(R.string.saved_last_entry_key), getString(R.string.ZERO_DATE));
-        boolean is_earlier = isEarlier(lastEntry, dateS);
+        boolean is_earlier = isEarlier(lastEntry, dateS, EARLIER.DAY);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         if (is_earlier) {
             editor.putString(getString(R.string.saved_last_entry_key), dateS);
@@ -159,17 +162,57 @@ public class MainActivity extends AppCompatActivity
         //float mpd = calculateMPD(moneySpent, moneyPerMonth, dateS);
     }
 
-    private boolean isEarlier(String lastEntry, String dateS) {
+    static private int getDaysInBetween(int date1, int date2){
+        int days = 0;
+
+        if( date1 > date2){
+            int temp = date1;
+            date1 = date2;
+            date2 = date1;
+        }
+
+        Calendar cDate1 = new GregorianCalendar();
+        int year = date1 / 10000;
+        int month = (date1 - year * 10000) / 100;
+        int day = (date1 - year * 10000 - month * 100);
+        cDate1.set(year, month, day);
+
+        Calendar cDate2 = new GregorianCalendar();
+        year = date2 / 10000;
+        month = (date2 - year * 10000) / 100;
+        day = (date2 - year * 10000 - month * 100);
+        cDate2.set(year, month, day);
+
+        days = (int)((cDate2.getTimeInMillis() - cDate1.getTimeInMillis()) / (24 * 60 * 60 * 1000));
+
+        return days;
+
+    }
+
+    static private boolean isEarlier(String last, String newest, EARLIER flag){
+
+        switch(flag){
+            case MONTH:
+                return (dateToInt(last) / 100) < (dateToInt(newest) / 100);
+            case DAY:
+            default:
+                return dateToInt(last) < dateToInt(newest);
+        }
+    }
+
+    private static int dateToInt(String date){
+        return 10000 * Integer.parseInt(date.substring(6, 10))
+                + 100 * Integer.parseInt(date.substring(0, 2))
+                + Integer.parseInt(date.substring(3, 5));
+    }
+
+    private boolean oldIsEarlier(String lastEntry, String dateS) {
 
         boolean x = false;
 
-        int date_s = 10000 * Integer.parseInt(dateS.substring(6, 10))
-                + 100 * Integer.parseInt(dateS.substring(0, 2))
-                + Integer.parseInt(dateS.substring(3, 5));
+        int date_s = dateToInt(dateS);
 
-        int last_entry = 10000 * Integer.parseInt(lastEntry.substring(6, 10))
-                + 100 * Integer.parseInt(lastEntry.substring(0, 2))
-                + Integer.parseInt(lastEntry.substring(3, 5));
+        int last_entry = dateToInt(lastEntry);
 
         if (last_entry < date_s) {
             x = true;
@@ -412,34 +455,20 @@ public class MainActivity extends AppCompatActivity
         String lastEntry = sharedPreferences.getString(getString(R.string.saved_last_entry_key), "00/00/0000");
         String dateS = (new SimpleDateFormat("MM/dd/YYYY")).format(new Date());
 
-        boolean is_earlier = isEarlier(lastEntry, dateS);
 
         float mpd = 0;
 
-        if (is_earlier) {
-
-            /*
-            float moneySpent = sharedPreferences.getFloat(getString(R.string.saved_money_spent_key), 0);
-            float moneyPerMonth = sharedPreferences.getFloat(getString(R.string.saved_money_per_month_key), 600);
-            if ((Integer.parseInt(lastEntry.substring(6, 10)) * 100 + Integer.parseInt(lastEntry.substring(0, 2))) < (Integer.parseInt(dateS.substring(6, 10)) * 100 + Integer.parseInt(dateS.substring(0, 2)))) {
-                moneySpent = 0;
-                editor.putFloat(getString(R.string.saved_money_spent_key), 0);
-            }
-
-            //mpd = calculateMPD(moneySpent, moneyPerMonth, dateS);
-
-            //mpd = Math.round(mpd * 100.0F) / 100.0F;
-
-            // editor.putFloat(getString(R.string.saved_mpd_today_key), mpd);
-
-            */
-
+        if(isEarlier(lastEntry, dateS,EARLIER.DAY)) {
             float moneyPerMonth = sharedPreferences.getFloat(getString(R.string.saved_money_per_month_key), 600);
             float moneyPerDay = moneyPerMonth / getDaysInMonth(dateS);
             float moneySpentYesterday = sharedPreferences.getFloat(getString(R.string.saved_money_spent_today_key), 0);
 
             float savings = sharedPreferences.getFloat(getString(R.string.saved_savings_key), 0);
-            savings += (moneyPerDay - moneySpentYesterday);
+            savings += (moneyPerDay - moneySpentYesterday) + getDaysInBetween(dateToInt(lastEntry), dateToInt(dateS));
+
+            if (isEarlier(lastEntry, dateS, EARLIER.MONTH)) {
+                editor.putFloat(getString(R.string.saved_money_spent_key), 0);
+            }
 
             editor.putFloat(getString(R.string.saved_mpd_today_key), moneyPerDay);
             editor.putFloat(getString(R.string.saved_savings_key), savings);
@@ -447,10 +476,6 @@ public class MainActivity extends AppCompatActivity
             editor.putFloat(getString(R.string.saved_money_spent_today_key), 0);
 
             editor.commit();
-
-        } else {
-            //mpd = sharedPreferences.getFloat(getString(R.string.saved_mpd_today_key), 20);
-
         }
 
         float moneyPerMonth = sharedPreferences.getFloat(getString(R.string.saved_money_per_month_key), 600);
